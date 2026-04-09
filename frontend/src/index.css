@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-blue: #235291;
+  --primary-blue-hover: #1c4173;
+  --secondary-bg: #f8f9fb;
+  --text-dark: #1e293b;
+  --text-light: #64748b;
+  --border-color: #e2e8f0;
+  --white: #ffffff;
+  --sidebar-width: 260px;
+
+  /* Additional Accents */
+  --accent-light-blue: #cfe2ff;
+  --accent-red: #fee2e2;
+  --text-red: #b91c1c;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--secondary-bg);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ── Utility Buttons ──────────────────────────────────────────────────── */
+.btn-primary {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.btn-primary:hover { background-color: var(--primary-blue-hover); }
+
+.btn-secondary {
+  background-color: #e2e8f0;
+  color: var(--text-dark);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+.btn-secondary:hover { background-color: #cbd5e1; }
+
+/* ── Card ─────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+
+/* ── Pill ─────────────────────────────────────────────────────────────── */
+.pill {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: var(--accent-light-blue);
+  color: var(--primary-blue);
+}
+
+/* ── Layout ───────────────────────────────────────────────────────────── */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* prevents flex children overflowing */
+}
+
+.page-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Sidebar Overlay (mobile) ─────────────────────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 40;
+  animation: fadeIn 0.2s ease;
+}
+.sidebar-overlay.visible { display: block; }
+
+/* ── Hamburger Button (mobile/tablet only) ────────────────────────────── */
+.hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  color: var(--text-dark);
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+/* ── Tablet: 768px – 1023px ───────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .hamburger-btn {
+    display: flex;
+  }
+
+  /* Sidebar becomes a slide-in drawer */
+  .app-sidebar {
+    position: fixed !important;
+    left: -280px;
+    top: 0;
+    height: 100vh;
+    z-index: 50;
+    transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-lg);
+  }
+  .app-sidebar.open {
+    left: 0;
+  }
+
+  .page-container {
+    padding: 1.25rem;
+  }
+}
+
+/* ── Mobile: up to 767px ──────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .page-container {
+    padding: 1rem;
+  }
+
+  /* Stack grids to single column */
+  .responsive-grid-2,
+  .responsive-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Shrink card padding on small screens */
+  .card {
+    padding: 1rem;
+  }
+
+  /* Hide non-essential header text */
+  .header-search {
+    width: 100% !important;
+    max-width: 200px;
+  }
+}
+
+/* ── Animations ───────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes pulseIn {
+  from { transform: scale(0.97); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

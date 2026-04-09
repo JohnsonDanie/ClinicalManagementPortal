@@ -1,0 +1,228 @@
+import React, { useState } from 'react';
+import {
+  Clock, AlertTriangle, BookOpen, AlertCircle, CheckCircle2,
+  User, PhoneCall, Workflow, Siren, Users, ArrowRight,
+  ClipboardList, XCircle, ChevronDown, UserCheck, Sparkles, FileText
+} from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import SOAPGenerator from '../components/SOAPGenerator';
+
+const PriorityBadge = ({ priority }) => {
+  const styles = {
+    Emergency: { bg: '#fee2e2', color: '#b91c1c' },
+    Urgent: { bg: '#fef3c7', color: '#92400e' },
+    Routine: { bg: '#dcfce7', color: '#15803d' },
+  };
+  const s = styles[priority] || styles.Routine;
+  return (
+    <span style={{ background: s.bg, color: s.color, fontSize: '0.7rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '99px' }}>
+      {priority}
+    </span>
+  );
+};
+
+const getSourceBadge = (type, source) => {
+  switch (type) {
+    case 'emergency':
+      return <span className="pill" style={{ background: '#fee2e2', color: '#b91c1c', fontSize: '0.7rem' }}><AlertCircle size={10} style={{ display: 'inline', marginRight: '4px' }} />{source}</span>;
+    case 'referral':
+      return <span className="pill" style={{ background: '#e0e7ff', color: '#4338ca', fontSize: '0.7rem' }}><Workflow size={10} style={{ display: 'inline', marginRight: '4px' }} />{source}</span>;
+    default:
+      return <span className="pill" style={{ background: '#f1f5f9', color: '#475569', fontSize: '0.7rem' }}><BookOpen size={10} style={{ display: 'inline', marginRight: '4px' }} />{source}</span>;
+  }
+};
+
+const Dashboard = () => {
+  const { user, assessmentResult } = useAuth();
+  
+  // Real-time checks for assigned emergency patient
+  const hasAssignedEmergency = assessmentResult?.priority === 'Emergency' && assessmentResult?.assignedCounselor?.id === user?.id;
+
+  const [referralNotes, setReferralNotes] = useState('');
+  const [sessionActive, setSessionActive] = useState(false);
+  const [showSOAP, setShowSOAP] = useState(false);
+  const [activePatient, setActivePatient] = useState(null);
+
+  const openSOAP = (patient) => {
+    setActivePatient(patient);
+    setShowSOAP(true);
+  };
+
+  const appointments = [
+    { id: 1, name: 'Michael Ross', time: '09:00 AM', source: 'System Booking', type: 'standard' },
+    { id: 2, name: 'Sarah Jenkins', time: '10:30 AM', source: 'Internal Referral', type: 'referral' },
+  ];
+
+  const queue = [
+    { position: 1, name: 'Chidi Eze', priority: 'Urgent', waitTime: '~20 min', category: 'Academic' },
+    { position: 2, name: 'Fatima Al-Rashid', priority: 'Urgent', waitTime: '~35 min', category: 'Individual' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+      {/* Page Header — No Daily/Weekly tags */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>COUNSELOR DASHBOARD</p>
+          <h1 style={{ fontSize: '2rem', color: 'var(--primary-blue)', marginBottom: '0.5rem' }}>
+            Welcome back, {user?.user_metadata?.name || 'Dr. Miller'}
+          </h1>
+          <p style={{ color: 'var(--text-light)' }}>
+            {hasAssignedEmergency ? '🔴 You have an active Emergency assignment.' : `You have ${appointments.length} appointments today.`}
+          </p>
+        </div>
+      </div>
+
+      {/* ── EMERGENCY ASSIGNMENT BANNER (Only shows if assigned) ────── */}
+      {hasAssignedEmergency && (
+        <div style={{
+          background: 'linear-gradient(135deg, #450a0a, #7f1d1d)',
+          borderRadius: '20px',
+          padding: '2rem',
+          color: 'white',
+          boxShadow: '0 12px 40px rgba(185,28,28,0.4)',
+          animation: 'pulseIn 0.5s ease',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Siren size={24} color="white" />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.8, marginBottom: '0.2rem' }}>Instant Priority Assignment</div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>New Emergency Case: New Student</h2>
+              </div>
+            </div>
+            <PriorityBadge priority="Emergency" />
+          </div>
+
+          <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <p style={{ fontSize: '0.95rem', lineHeight: 1.6, fontStyle: 'italic' }}>
+              "The student reported feeling hopeless and mentioned thoughts of self-harm. Immediate intervention requested."
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => setSessionActive(true)}
+              style={{ background: 'white', color: '#7f1d1d', padding: '0.75rem 1.5rem', borderRadius: '10px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <UserCheck size={18} /> Accept & Start Instant Session
+            </button>
+            <button 
+              onClick={() => openSOAP({ name: "New Student (Emergency)" })}
+              style={{ background: 'rgba(255,255,255,0.2)', color: 'white', padding: '0.75rem 1.5rem', borderRadius: '10px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Sparkles size={16} /> Generate AI SOAP Note
+            </button>
+            <button style={{ background: 'rgba(255,255,255,0.2)', color: 'white', padding: '0.75rem 1.5rem', borderRadius: '10px', fontWeight: 600 }}>
+              Refer Externally
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── MAIN GRID ─────────────────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
+
+        {/* Left Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          {/* Today's Appointments */}
+          <div className="card">
+            <h2 style={{ fontSize: '1.2rem', color: 'var(--primary-blue)', fontWeight: 600, marginBottom: '1.25rem' }}>Scheduled Appointments</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+              {appointments.map((p) => (
+                <div key={p.id} style={{ display: 'flex', alignItems: 'center', padding: '0.875rem 1rem', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                  <div style={{ background: '#f1f5f9', padding: '0.4rem 0.75rem', borderRadius: '8px', marginRight: '1rem', textAlign: 'center' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{p.time}</span>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 600 }}>{p.name}</h3>
+                    {getSourceBadge(p.type, p.source)}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button 
+                      onClick={() => openSOAP(p)}
+                      className="btn-secondary" style={{ padding: '0.5rem 0.75rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <FileText size={14} /> SOAP
+                    </button>
+                    <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>Start</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Walk-in Digital Queue */}
+          <div className="card" style={{ borderTop: '4px solid #fca5a5' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.2rem', color: 'var(--primary-blue)', fontWeight: 600 }}>Walk-in Digital Queue</h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>Waiting for availability</p>
+              </div>
+              <span className="pill" style={{ background: '#fee2e2', color: '#b91c1c' }}>{queue.length} Waiting</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {queue.map((q, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fef3c7', color: '#92400e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, marginRight: '1rem' }}>{idx + 1}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600 }}>{q.name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{q.category} · Wait: {q.waitTime}</div>
+                  </div>
+                  <button className="btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>Attend</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          {/* Weekly Metrics */}
+          <div className="card" style={{ background: '#f8fafc', border: 'none' }}>
+            <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.5rem' }}>Weekly Metrics</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {[
+                { icon: CheckCircle2, bg: '#dcfce7', color: '#15803d', label: 'Resolved Cases', value: '18 Students' },
+                { icon: User, bg: '#e0e7ff', color: '#4338ca', label: 'Active Patients', value: '24 Total' },
+                { icon: PhoneCall, bg: '#fee2e2', color: '#b91c1c', label: 'Emergencies', value: '4 This Week' },
+              ].map((m, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: m.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <m.icon size={18} color={m.color} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{m.label}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{m.value}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Referral Action Panel */}
+          <div className="card" style={{ borderLeft: '4px solid #b91c1c', background: '#fff5f5' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.75rem' }}>
+              <AlertTriangle size={18} color="#b91c1c" />
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#b91c1c' }}>Referral Action</h3>
+            </div>
+            <p style={{ fontSize: '0.8rem', color: '#7f1d1d', lineHeight: 1.5, marginBottom: '1rem' }}>
+              Document external referrals for severe psychiatric or physical crisis cases. 
+            </p>
+            <button className="btn-primary" style={{ width: '100%', padding: '0.6rem', background: '#b91c1c', fontSize: '0.85rem' }}>Submit New Referral</button>
+          </div>
+        </div>
+      </div>
+
+      <SOAPGenerator 
+        isOpen={showSOAP} 
+        onClose={() => setShowSOAP(false)} 
+        patientName={activePatient?.name} 
+      />
+    </div>
+  );
+};
+
+export default Dashboard;
