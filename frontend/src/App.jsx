@@ -43,13 +43,30 @@ const StudentRoute = ({ children }) => {
 // ── Role-based root redirect ───────────────────────────────────────────────
 const MainRedirect = () => {
   const { user, assessmentResult } = useAuth();
-  if (user?.user_metadata?.role === 'student') {
+  
+  if (!user) return <Navigate to="/auth" replace />;
+
+  const role = user.user_metadata?.role;
+
+  if (role === 'student') {
     if (!assessmentResult) return <Navigate to="/assessment" replace />;
     return <Navigate to="/student-dashboard" replace />;
   }
-  if (user?.user_metadata?.role === 'desk_officer' || user?.user_metadata?.role === 'admin') return <Navigate to="/admin" replace />;
-  if (user?.user_metadata?.role === 'counselor') return <Navigate to="/dashboard" replace />;
-  return <Navigate to="/auth" replace />;
+  
+  if (role === 'desk_officer' || role === 'admin') {
+    return <Navigate to="/admin" replace />;
+  }
+  
+  if (role === 'counselor') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // Fallback for unknown roles: if we're already at /auth, don't redirect back to /auth
+  return <div style={{ padding: '2rem', textAlign: 'center' }}>
+    <h3>Account Configuration Required</h3>
+    <p>Your account does not have a designated role. Please contact an administrator.</p>
+    <button onClick={() => window.location.href = '/auth'} className="btn-secondary">Back to Login</button>
+  </div>;
 };
 
 // ── App ────────────────────────────────────────────────────────────────────

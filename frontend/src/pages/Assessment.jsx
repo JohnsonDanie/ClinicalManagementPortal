@@ -34,7 +34,7 @@ const MOOD_LABELS = {
 };
 
 const Assessment = () => {
-  const { user, setAssessmentComplete } = useAuth();
+  const { user, setAssessmentComplete, logout } = useAuth();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -113,7 +113,27 @@ const Assessment = () => {
       <div style={{ width: '100%', maxWidth: '600px' }}>
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative' }}>
+          <button 
+            onClick={() => {
+              logout();
+              navigate('/auth');
+            }}
+            style={{
+              position: 'absolute',
+              top: '-10px',
+              right: '0',
+              fontSize: '0.8rem',
+              color: '#64748b',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: '0.5rem'
+            }}
+          >
+            Sign Out
+          </button>
           <div style={{
             width: '56px', height: '56px',
             background: 'linear-gradient(135deg, #235291, #4f80c0)',
