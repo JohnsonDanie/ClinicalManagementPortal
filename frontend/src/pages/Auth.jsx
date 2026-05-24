@@ -11,7 +11,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
-  const { login, signup, signInWithGoogle } = useAuth();
+  const { login, signup, signInWithGoogle, signInWithCampusOne } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -170,6 +170,39 @@ const Auth = () => {
                 <span style={{ padding: '0 1rem', fontSize: '0.8rem', color: 'var(--text-light)', fontWeight: 500 }}>OR</span>
                 <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
               </div>
+
+              <button 
+                type="button" 
+                onClick={async () => {
+                  try {
+                    await signInWithCampusOne();
+                  } catch (err) {
+                    setError(err.message || 'Campus One login failed. Please try again.');
+                  }
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.75rem',
+                  padding: '0.75rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid #1e499d',
+                  backgroundColor: '#1e499d',
+                  color: 'white',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#163573'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1e499d'}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 13c0 5-3.5 7.5-7.66 9.7a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 .76-.97l8-2a1 1 0 0 1 .48 0l8 2A1 1 0 0 1 20 6z" />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+                Sign in with Campus One SSO
+              </button>
 
               <button 
                 type="button" 

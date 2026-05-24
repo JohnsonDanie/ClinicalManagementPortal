@@ -3,10 +3,18 @@ import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
 
+const mapCampusOneRole = (coRole) => {
+  if (coRole === 'student') return 'student';
+  if (['staff', 'consultant', 'therapist'].includes(coRole)) return 'counselor';
+  if (coRole === 'admin') return 'admin';
+  return 'student'; // default/fallback
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [assessmentResult, setAssessmentResult] = useState(null);
+  const [providerToken, setProviderToken] = useState(null);
 
   useEffect(() => {
     // 1. Check active sessions and sets the user
@@ -19,11 +27,14 @@ export function AuthProvider({ children }) {
           if (!allowedDomains.includes(userDomain)) {
             supabase.auth.signOut();
             setUser(null);
+            setProviderToken(null);
             setLoading(false);
             return;
           }
+          setProviderToken(session.provider_token || null);
           fetchProfile(session.user);
         } else {
+          setProviderToken(null);
           setLoading(false);
         }
       })
@@ -42,13 +53,16 @@ export function AuthProvider({ children }) {
         if (!allowedDomains.includes(userDomain)) {
           await supabase.auth.signOut();
           setUser(null);
+          setProviderToken(null);
           setLoading(false);
           alert("Unauthorized Domain: Please use your university email.");
           return;
         }
+        setProviderToken(session.provider_token || null);
         fetchProfile(session.user);
       } else {
         setUser(null);
+        setProviderToken(null);
         setLoading(false);
       }
     });
@@ -63,13 +77,32 @@ export function AuthProvider({ children }) {
 
   const fetchProfile = async (authUser) => {
     try {
-      const { data: profile, error } = await supabase
+      let { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', authUser.id)
         .single();
       
-      if (error) throw error;
+      if (error && error.code === 'PGRST116') {
+        // PGRST116 is row-not-found; auto-provision profile from Campus One claims
+        const metadata = authUser.user_metadata || {};
+        const mappedRole = mapCampusOneRole(metadata.role || 'student');
+        const newProfile = {
+          id: authUser.id,
+          full_name: metadata.name || metadata.full_name || authUser.email?.split('@')[0] || 'Unknown User',
+          role: mappedRole,
+          email: authUser.email,
+        };
+        const { data: inserted, error: insertError } = await supabase
+          .from('profiles')
+          .insert(newProfile)
+          .select()
+          .single();
+        if (insertError) throw insertError;
+        profile = inserted;
+      } else if (error) {
+        throw error;
+      }
 
       // Merge Auth and Database Profile
       setUser({
@@ -159,6 +192,43 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const signInWithCampusOne = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'campus-one',
+      options: {
+        redirectTo: import.meta.env.VITE_APP_URL || window.location.origin,
+        scopes: 'openid profile email academic roles offline_access',
+      }
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  const sendCampusOneNotification = async (title, body, type = 'info', targetUrl = '') => {
+    if (!providerToken) {
+      console.warn('No active Campus One provider token found in session.');
+      return;
+    }
+    const response = await fetch('https://auth.campusone.com.ng/api/apps/notifications', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${providerToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title,
+        body,
+        type,
+        targetUrl
+      })
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.message || 'Failed to dispatch notification to Campus One.');
+    }
+    return await response.json();
+  };
+
   const isAllowedDomain = (email) => {
     const allowedDomains = ['builtbysalih.com', 'nileuniversity.edu.ng'];
     const domain = email.split('@')[1];
@@ -172,9 +242,12 @@ export function AuthProvider({ children }) {
     signup,
     logout,
     signInWithGoogle,
+    signInWithCampusOne,
     isAllowedDomain,
     assessmentResult,
     setAssessmentComplete,
+    providerToken,
+    sendCampusOneNotification,
   };
 
   return (
