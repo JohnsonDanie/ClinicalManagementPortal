@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const STORAGE_KEY = 'wellness_bot_messages';
 
 const WellnessBot = () => {
-  const { user } = useAuth();
+  const { user, sendCampusOneNotification } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   // FIX-14: Track unread state so the red dot only shows when there's a new message
@@ -164,6 +164,20 @@ const WellnessBot = () => {
         message: `Student ${user?.user_metadata?.name} reported feeling overwhelmed during their automated bot check-in. Review their care plan.`,
         is_read: false
       });
+
+      // Dispatch notification to student's CampusOne dashboard
+      try {
+        if (sendCampusOneNotification) {
+          await sendCampusOneNotification(
+            'Mood Check-in Flagged',
+            'Your chatbot check-in flagged elevated distress. Your counselor has been alerted to review your care plan.',
+            'priority',
+            `${window.location.origin}/student-dashboard`
+          );
+        }
+      } catch (err) {
+        console.warn('CampusOne notification failed:', err);
+      }
 
       // 5. Create crisis flag — now includes assessment_id (nullable if no prior assessment)
       await supabase.from('crisis_flags').insert({

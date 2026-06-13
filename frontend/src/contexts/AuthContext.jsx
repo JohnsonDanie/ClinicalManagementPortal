@@ -4,9 +4,11 @@ import { supabase } from '../lib/supabase';
 const AuthContext = createContext();
 
 const mapCampusOneRole = (coRole) => {
-  if (coRole === 'student') return 'student';
-  if (['staff', 'consultant', 'therapist'].includes(coRole)) return 'counselor';
-  if (coRole === 'admin') return 'admin';
+  const role = coRole?.toLowerCase();
+  if (role === 'student') return 'student';
+  if (['staff', 'consultant', 'therapist', 'counselor'].includes(role)) return 'counselor';
+  if (['admin', 'administrator'].includes(role)) return 'admin';
+  if (['desk_officer', 'desk-officer', 'officer', 'desk_officer_role'].includes(role)) return 'desk_officer';
   return 'student'; // default/fallback
 };
 
@@ -194,7 +196,7 @@ export function AuthProvider({ children }) {
 
   const signInWithCampusOne = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'campus-one',
+      provider: 'keycloak',
       options: {
         redirectTo: import.meta.env.VITE_APP_URL || window.location.origin,
         scopes: 'openid profile email academic roles offline_access',

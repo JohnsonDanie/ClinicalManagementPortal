@@ -15,7 +15,7 @@ const DURATIONS = [
 ];
 
 const BookingModal = ({ isOpen, onClose, counselor }) => {
-  const { user } = useAuth();
+  const { user, sendCampusOneNotification } = useAuth();
   const [step, setStep] = useState(1); // 1: Date/Duration, 2: Slot Selection, 3: Success
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [duration, setDuration] = useState(60);
@@ -61,6 +61,21 @@ const BookingModal = ({ isOpen, onClose, counselor }) => {
         });
 
       if (error) throw error;
+
+      // Dispatch notification to CampusOne dashboard
+      try {
+        if (sendCampusOneNotification) {
+          await sendCampusOneNotification(
+            'Session Confirmed',
+            `Your session with ${counselor?.full_name} is scheduled for ${new Date(selectedSlot.iso).toLocaleDateString()} at ${selectedSlot.time}.`,
+            'success',
+            `${window.location.origin}/student-dashboard`
+          );
+        }
+      } catch (err) {
+        console.warn('CampusOne notification failed:', err);
+      }
+
       setStep(3);
     } catch (err) {
       console.error(err);
