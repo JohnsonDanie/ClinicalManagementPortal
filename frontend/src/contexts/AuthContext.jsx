@@ -196,7 +196,7 @@ export function AuthProvider({ children }) {
 
   const signInWithCampusOne = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'keycloak',
+      provider: 'custom:campus-one',
       options: {
         redirectTo: (import.meta.env.VITE_APP_URL || window.location.origin).trim(),
         scopes: 'openid profile email academic roles offline_access',
