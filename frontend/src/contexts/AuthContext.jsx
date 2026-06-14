@@ -137,7 +137,7 @@ export function AuthProvider({ children }) {
       email,
       password,
       options: {
-        emailRedirectTo: (import.meta.env.VITE_APP_URL || window.location.origin).trim(),
+        emailRedirectTo: window.location.origin,
         data: {
           role: role,
           full_name: fullName,
@@ -184,7 +184,7 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: (import.meta.env.VITE_APP_URL || window.location.origin).trim(),
+        redirectTo: window.location.origin,
         queryParams: {
           prompt: 'select_account',
         },
@@ -198,7 +198,7 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'custom:campus-one',
       options: {
-        redirectTo: (import.meta.env.VITE_APP_URL || window.location.origin).trim(),
+        redirectTo: window.location.origin,
         scopes: 'openid profile email academic roles offline_access',
       }
     });
