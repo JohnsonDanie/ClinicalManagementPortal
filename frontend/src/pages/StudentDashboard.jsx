@@ -349,9 +349,9 @@ const StudentDashboard = () => {
                 ))
               )}
               {isHighRisk && (
-                <div style={{ padding: '0.875rem', background: priority === 'Emergency' ? '#fee2e2' : '#fef3c7', borderRadius: '10px', border: `1px solid ${priority === 'Emergency' ? '#fca5a5' : '#fde68a'}` }}>
-                  <p style={{ fontSize: '0.7rem', fontWeight: 700, color: priority === 'Emergency' ? '#b91c1c' : '#92400e', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Priority</p>
-                  <h4 style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.9rem' }}>{priority} Queue</h4>
+                <div style={{ padding: '0.875rem', background: '#f0f4ff', borderRadius: '10px', border: '1px solid #c7d7f8' }}>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#235291', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assigned Queue</p>
+                  <h4 style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.9rem' }}>Support Queue</h4>
                   <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.2rem' }}>Position #1 · ~15 min</p>
                 </div>
               )}
@@ -363,12 +363,11 @@ const StudentDashboard = () => {
               <h3 style={{ fontSize: '1rem', color: 'var(--primary-blue)', marginBottom: '1rem', fontWeight: 600 }}>My Assessment</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Priority</span>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Status</span>
                   <span style={{
                     fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '99px',
-                    background: priorityVal === 'Emergency' ? '#fee2e2' : priorityVal === 'Urgent' ? '#fef3c7' : '#dcfce7',
-                    color: priorityVal === 'Emergency' ? '#b91c1c' : priorityVal === 'Urgent' ? '#92400e' : '#15803d',
-                  }}>{priorityVal}</span>
+                    background: '#dcfce7', color: '#15803d',
+                  }}>Completed</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Category</span>

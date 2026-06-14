@@ -295,8 +295,7 @@ const Assessment = () => {
               <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: result.isHighRisk ? '#fee2e2' : '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
                 {result.isHighRisk ? <AlertTriangle color="#ef4444" /> : <CheckCircle2 color="#22c55e" />}
               </div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>{result.isHighRisk ? 'Support is available.' : 'Thank you for sharing.'}</h2>
-              <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '2rem' }}>Priority Level: <strong>{result.priority}</strong></p>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '2rem' }}>{result.isHighRisk ? 'Support is available.' : 'Thank you for sharing.'}</h2>
               <button 
                 onClick={handleContinue} 
                 className="btn-primary" 
