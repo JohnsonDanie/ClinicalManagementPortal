@@ -173,6 +173,10 @@ export function AuthProvider({ children }) {
     setUser(null);
     setAssessmentResult(null);
     localStorage.removeItem('assessmentResult');
+
+    // Redirect to CampusOne sign out to clear SSO session
+    const returnUrl = encodeURIComponent(window.location.origin + '/auth');
+    window.location.href = `https://auth.campusone.com.ng/api/auth/sign-out?post_logout_redirect_uri=${returnUrl}`;
   };
 
   const setAssessmentComplete = (result) => {
