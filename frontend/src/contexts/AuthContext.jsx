@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
         if (session?.user) {
-          const allowedDomains = ['builtbysalih.com', 'nileuniversity.edu.ng'];
+          const allowedDomains = ['builtbysalih.com', 'nileuniversity.edu.ng', 'gmail.com'];
           const userDomain = session.user.email?.split('@')[1];
 
           if (!allowedDomains.includes(userDomain)) {
@@ -49,7 +49,7 @@ export function AuthProvider({ children }) {
     // 2. Listen for changes on auth state (logged in, signed out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        const allowedDomains = ['builtbysalih.com', 'nileuniversity.edu.ng'];
+        const allowedDomains = ['builtbysalih.com', 'nileuniversity.edu.ng', 'gmail.com'];
         const userDomain = session.user.email?.split('@')[1];
         
         if (!allowedDomains.includes(userDomain)) {
@@ -174,9 +174,8 @@ export function AuthProvider({ children }) {
     setAssessmentResult(null);
     localStorage.removeItem('assessmentResult');
 
-    // Redirect to CampusOne sign out to clear SSO session
-    const returnUrl = encodeURIComponent(window.location.origin + '/auth');
-    window.location.href = `https://auth.campusone.com.ng/api/auth/sign-out?post_logout_redirect_uri=${returnUrl}`;
+    // Redirect directly to CampusOne landing page (keeps their SSO session active)
+    window.location.href = 'https://app.campusone.com.ng';
   };
 
   const setAssessmentComplete = (result) => {
@@ -236,7 +235,7 @@ export function AuthProvider({ children }) {
   };
 
   const isAllowedDomain = (email) => {
-    const allowedDomains = ['builtbysalih.com', 'nileuniversity.edu.ng'];
+    const allowedDomains = ['builtbysalih.com', 'nileuniversity.edu.ng', 'gmail.com'];
     const domain = email.split('@')[1];
     return allowedDomains.includes(domain);
   };
